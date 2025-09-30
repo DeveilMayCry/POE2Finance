@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rules>
+    <!-- 始终启用的规则 -->
+    <always_on_rules>
+        <rule name="password_security">
+            <rule_content>
+                1. 不能上传账号密码到github，需要使用配置的形式
+                2. 敏感信息必须存储在环境变量或配置文件中
+                3. 配置文件要添加到 .gitignore 中
+                4. 提供配置模板文件供参考
+            </rule_content>
+        </rule>
+    </always_on_rules>
+
+    <!-- 模型决策规则 - AI根据上下文决定是否应用 -->
+    <model_decision_rules>
+        <rule name="documentation_generation" description="当AI觉得需要生成文档时">
+            <rule_content>
+                不要每添加一个功能就写一些文档，只需要写重点文档，文档着重于原理和使用方法，不要写太多的优点或是好处这种废话
+            </rule_content>
+        </rule>
+    </model_decision_rules>
+
+    <!-- 文件匹配规则 -->
+    <glob_rules>
+        <!-- 可以根据需要添加特定文件类型的规则 -->
+    </glob_rules>
+</rules>
