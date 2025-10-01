@@ -175,3 +175,112 @@ public class VideoGenerationConfigDto
     /// </summary>
     public string OutputPath { get; set; } = string.Empty;
 }
+
+/// <summary>
+/// 采集结果响应数据
+/// </summary>
+public class CollectionResultDto
+{
+    /// <summary>
+    /// 操作是否成功
+    /// </summary>
+    public bool Success { get; set; }
+
+    /// <summary>
+    /// 采集到的数据总数
+    /// </summary>
+    public int TotalCount { get; set; }
+
+    /// <summary>
+    /// 响应消息
+    /// </summary>
+    public string Message { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 采集到的价格数据
+    /// </summary>
+    public List<PriceDataDto> Data { get; set; } = new();
+
+    /// <summary>
+    /// 响应时间戳
+    /// </summary>
+    public DateTime Timestamp { get; set; }
+}
+
+/// <summary>
+/// 单个价格采集结果响应数据
+/// </summary>
+public class SinglePriceResultDto
+{
+    /// <summary>
+    /// 操作是否成功
+    /// </summary>
+    public bool Success { get; set; }
+
+    /// <summary>
+    /// 响应消息
+    /// </summary>
+    public string Message { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 采集到的价格数据
+    /// </summary>
+    public PriceDataDto? Data { get; set; }
+
+    /// <summary>
+    /// 响应时间戳
+    /// </summary>
+    public DateTime Timestamp { get; set; }
+}
+
+/// <summary>
+/// 数据源状态响应数据
+/// </summary>
+public class DataSourceStatusDto
+{
+    /// <summary>
+    /// 操作是否成功
+    /// </summary>
+    public bool Success { get; set; }
+
+    /// <summary>
+    /// 响应消息
+    /// </summary>
+    public string Message { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 可用的数据源列表
+    /// </summary>
+    public List<DataSource> DataSources { get; set; } = new();
+
+    /// <summary>
+    /// 响应时间戳
+    /// </summary>
+    public DateTime Timestamp { get; set; }
+}
+
+/// <summary>
+/// 健康检查结果响应数据
+/// </summary>
+public class HealthCheckResultDto
+{
+    /// <summary>
+    /// 操作是否成功
+    /// </summary>
+    public bool Success { get; set; }
+
+    /// <summary>
+    /// 数据源是否健康
+    /// </summary>
+    public bool IsHealthy { get; set; }
+
+    /// <summary>
+    /// 响应消息
+    /// </summary>
+    public string Message { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 响应时间戳
+    /// </summary>
+    public DateTime Timestamp { get; set; }
+}

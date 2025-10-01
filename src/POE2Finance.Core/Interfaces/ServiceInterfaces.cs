@@ -55,6 +55,12 @@ public interface IDataCollectionService
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>价格数据</returns>
     Task<PriceDataDto?> CollectPriceWithFallbackAsync(CurrencyType currencyType, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 获取可用的数据源列表
+    /// </summary>
+    /// <returns>可用数据源列表</returns>
+    List<DataSource> GetAvailableDataSources();
 }
 
 /// <summary>
