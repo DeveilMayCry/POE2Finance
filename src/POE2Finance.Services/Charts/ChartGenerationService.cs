@@ -9,6 +9,8 @@ using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.Fonts;
 using POE2Finance.Services.Configuration;
+using ScottColor = ScottPlot.Color;
+using ImageColor = SixLabors.ImageSharp.Color;
 
 namespace POE2Finance.Services.Charts;
 
@@ -32,7 +34,7 @@ public class ChartGenerationService : IChartGenerationService
     }
 
     /// <inheritdoc/>
-    public async Task<string> GeneratePriceTrendChartAsync(List<PriceDataDto> priceData, string outputPath, CancellationToken cancellationToken = default)
+    public Task<string> GeneratePriceTrendChartAsync(List<PriceDataDto> priceData, string outputPath, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("开始生成价格趋势图，数据点数: {Count}", priceData.Count);
 
@@ -71,14 +73,14 @@ public class ChartGenerationService : IChartGenerationService
                 var times = sortedData.Select(p => p.CollectedAt.ToOADate()).ToArray();
                 var prices = sortedData.Select(p => (double)p.CurrentPriceInExalted).ToArray();
 
-                var color = colorIndex < colors.Length ? colors[colorIndex] : ScottPlot.Color.Gray;
+                var color = colorIndex < colors.Length ? colors[colorIndex] : ScottColor.FromHex("#808080");
                 
                 // 添加价格线
                 var scatter = plt.Add.Scatter(times, prices);
                 scatter.Color = color;
                 scatter.LineWidth = _config.LineWidth;
                 scatter.MarkerSize = _config.MarkerSize;
-                scatter.Label = GetCurrencyDisplayName(group.Key);
+                scatter.LegendText = GetCurrencyDisplayName(group.Key);
 
                 colorIndex++;
             }
@@ -98,7 +100,7 @@ public class ChartGenerationService : IChartGenerationService
             plt.SavePng(outputPath, _config.Width, _config.Height);
 
             _logger.LogInformation("价格趋势图已保存到: {OutputPath}", outputPath);
-            return outputPath;
+            return Task.FromResult(outputPath);
         }
         catch (Exception ex)
         {
@@ -108,7 +110,7 @@ public class ChartGenerationService : IChartGenerationService
     }
 
     /// <inheritdoc/>
-    public async Task<string> GenerateHotItemsChartAsync(List<HotItemAnalysisDto> hotItems, string outputPath, CancellationToken cancellationToken = default)
+    public Task<string> GenerateHotItemsChartAsync(List<HotItemAnalysisDto> hotItems, string outputPath, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("开始生成热点物品对比图，物品数: {Count}", hotItems.Count);
 
@@ -168,7 +170,7 @@ public class ChartGenerationService : IChartGenerationService
             plt.SavePng(outputPath, _config.Width, _config.Height);
 
             _logger.LogInformation("热点物品对比图已保存到: {OutputPath}", outputPath);
-            return outputPath;
+            return Task.FromResult(outputPath);
         }
         catch (Exception ex)
         {
@@ -201,7 +203,7 @@ public class ChartGenerationService : IChartGenerationService
             using var image = new Image<Rgba32>(_config.DashboardWidth, _config.DashboardHeight);
             
             // 设置背景色
-            image.Mutate(ctx => ctx.Fill(Color.White));
+            image.Mutate(ctx => ctx.Fill(ImageColor.White));
 
             // 添加标题
             await AddDashboardTitle(image, analysisResult);
@@ -232,12 +234,12 @@ public class ChartGenerationService : IChartGenerationService
     private void ConfigurePlotAppearance(Plot plt)
     {
         // 设置背景色
-        plt.FigureBackground.Color = ScottPlot.Color.FromHex(_config.BackgroundColor);
-        plt.DataBackground.Color = ScottPlot.Color.FromHex(_config.PlotBackgroundColor);
+        plt.FigureBackground.Color = ScottColor.FromHex(_config.BackgroundColor);
+        plt.DataBackground.Color = ScottColor.FromHex(_config.PlotBackgroundColor);
 
         // 设置网格
-        plt.Grid.Major.LineColor = ScottPlot.Color.FromHex(_config.GridColor);
-        plt.Grid.Minor.LineColor = ScottPlot.Color.FromHex(_config.GridColor).WithAlpha(0.3f);
+        plt.Grid.MajorLineColor = ScottColor.FromHex(_config.GridColor);
+        plt.Grid.MinorLineColor = ScottColor.FromHex(_config.GridColor).WithAlpha(0.3f);
 
         // 设置字体
         plt.Axes.Title.Label.FontSize = _config.TitleFontSize;
@@ -249,13 +251,13 @@ public class ChartGenerationService : IChartGenerationService
     /// 获取通货颜色配置
     /// </summary>
     /// <returns>颜色数组</returns>
-    private static ScottPlot.Color[] GetCurrencyColors()
+    private static ScottColor[] GetCurrencyColors()
     {
         return new[]
         {
-            ScottPlot.Color.FromHex("#FFD700"), // 崇高石 - 金色
-            ScottPlot.Color.FromHex("#8A2BE2"), // 神圣石 - 紫色
-            ScottPlot.Color.FromHex("#FF6347")  // 混沌石 - 橙红色
+            ScottColor.FromHex("#FFD700"), // 崇高石 - 金色
+            ScottColor.FromHex("#8A2BE2"), // 神圣石 - 紫色
+            ScottColor.FromHex("#FF6347")  // 混沌石 - 橙红色
         };
     }
 
@@ -264,14 +266,14 @@ public class ChartGenerationService : IChartGenerationService
     /// </summary>
     /// <param name="hotItems">热点物品列表</param>
     /// <returns>颜色数组</returns>
-    private static ScottPlot.Color[] GetHotItemColors(List<HotItemAnalysisDto> hotItems)
+    private static ScottColor[] GetHotItemColors(List<HotItemAnalysisDto> hotItems)
     {
-        var colors = new List<ScottPlot.Color>();
+        var colors = new List<ScottColor>();
         var baseColors = GetCurrencyColors();
 
         for (int i = 0; i < hotItems.Count; i++)
         {
-            var baseColor = i < baseColors.Length ? baseColors[i] : ScottPlot.Color.Gray;
+            var baseColor = i < baseColors.Length ? baseColors[i] : ScottColor.FromHex("#808080");
             
             // 根据热度评分调整颜色强度
             var intensity = Math.Min(1.0f, (float)(hotItems[i].HotScore / 100));
@@ -302,16 +304,18 @@ public class ChartGenerationService : IChartGenerationService
     /// </summary>
     /// <param name="image">图片对象</param>
     /// <param name="analysisResult">分析结果</param>
-    private async Task AddDashboardTitle(Image<Rgba32> image, MarketAnalysisResultDto analysisResult)
+    private Task AddDashboardTitle(Image<Rgba32> image, MarketAnalysisResultDto analysisResult)
     {
         var timeSlotName = GetTimeSlotDisplayName(analysisResult.TimeSlot);
         var title = $"POE2国服市场分析 - {timeSlotName} ({analysisResult.AnalysisTime:yyyy-MM-dd HH:mm})";
 
         image.Mutate(ctx =>
         {
-            ctx.DrawText(title, SystemFonts.CreateFont("Arial", 24, FontStyle.Bold), 
-                Color.Black, new PointF(20, 20));
+            ctx.DrawText(title, SystemFonts.CreateFont("Arial", 24, SixLabors.Fonts.FontStyle.Bold), 
+                ImageColor.Black, new PointF(20, 20));
         });
+        
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -319,14 +323,14 @@ public class ChartGenerationService : IChartGenerationService
     /// </summary>
     /// <param name="image">图片对象</param>
     /// <param name="hotItems">热点物品列表</param>
-    private async Task AddHotItemsSection(Image<Rgba32> image, List<HotItemAnalysisDto> hotItems)
+    private Task AddHotItemsSection(Image<Rgba32> image, List<HotItemAnalysisDto> hotItems)
     {
         var y = 80;
-        var font = SystemFonts.CreateFont("Arial", 16, FontStyle.Bold);
+        var font = SystemFonts.CreateFont("Arial", 16, SixLabors.Fonts.FontStyle.Bold);
         
         image.Mutate(ctx =>
         {
-            ctx.DrawText("🔥 热点通货", font, Color.Red, new PointF(20, y));
+            ctx.DrawText("🔥 热点通货", font, ImageColor.Red, new PointF(20, y));
         });
 
         y += 30;
@@ -338,11 +342,13 @@ public class ChartGenerationService : IChartGenerationService
             
             image.Mutate(ctx =>
             {
-                ctx.DrawText(text, itemFont, Color.Black, new PointF(40, y));
+                ctx.DrawText(text, itemFont, ImageColor.Black, new PointF(40, y));
             });
             
             y += 25;
         }
+        
+        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -350,14 +356,14 @@ public class ChartGenerationService : IChartGenerationService
     /// </summary>
     /// <param name="image">图片对象</param>
     /// <param name="analysisResult">分析结果</param>
-    private async Task AddMarketTrendSection(Image<Rgba32> image, MarketAnalysisResultDto analysisResult)
+    private Task AddMarketTrendSection(Image<Rgba32> image, MarketAnalysisResultDto analysisResult)
     {
         var y = 220;
-        var font = SystemFonts.CreateFont("Arial", 16, FontStyle.Bold);
+        var font = SystemFonts.CreateFont("Arial", 16, SixLabors.Fonts.FontStyle.Bold);
         
         image.Mutate(ctx =>
         {
-            ctx.DrawText("📈 市场动态", font, Color.Blue, new PointF(20, y));
+            ctx.DrawText("📈 市场动态", font, ImageColor.Blue, new PointF(20, y));
         });
 
         y += 30;
@@ -369,7 +375,7 @@ public class ChartGenerationService : IChartGenerationService
         {
             image.Mutate(ctx =>
             {
-                ctx.DrawText(line, contentFont, Color.Black, new PointF(40, y));
+                ctx.DrawText(line, contentFont, ImageColor.Black, new PointF(40, y));
             });
             y += 20;
         }
@@ -379,7 +385,7 @@ public class ChartGenerationService : IChartGenerationService
         // 添加交易建议
         image.Mutate(ctx =>
         {
-            ctx.DrawText("💡 交易建议", font, Color.Green, new PointF(20, y));
+            ctx.DrawText("💡 交易建议", font, ImageColor.Green, new PointF(20, y));
         });
 
         y += 30;
@@ -388,10 +394,12 @@ public class ChartGenerationService : IChartGenerationService
         {
             image.Mutate(ctx =>
             {
-                ctx.DrawText(line, contentFont, Color.Black, new PointF(40, y));
+                ctx.DrawText(line, contentFont, ImageColor.Black, new PointF(40, y));
             });
             y += 20;
         }
+        
+        return Task.CompletedTask;
     }
 
     /// <summary>

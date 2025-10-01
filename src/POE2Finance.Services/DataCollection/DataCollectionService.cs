@@ -199,43 +199,39 @@ public class DataCollectionService : IDataCollectionService
             .ToList();
     }
 
-    /// <summary>
-    /// 检查所有数据源的健康状态
-    /// </summary>
-    /// <param name="cancellationToken">取消令牌</param>
-    /// <returns>数据源健康状态字典</returns>
-    public async Task<Dictionary<DataSource, bool>> CheckAllDataSourcesHealthAsync(CancellationToken cancellationToken = default)
+    /// <inheritdoc/>
+    public async Task<bool> CheckAllDataSourcesHealthAsync(CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("检查所有数据源健康状态");
+        _logger.LogInformation("开始检查所有数据源健康状态");
 
-        var healthStatus = new Dictionary<DataSource, bool>();
         var enabledCollectors = _collectors.Where(c => c.IsEnabled).ToList();
+        if (!enabledCollectors.Any())
+        {
+            _logger.LogWarning("没有可用的数据采集器");
+            return false;
+        }
 
-        var tasks = enabledCollectors.Select(async collector =>
+        var healthCheckTasks = enabledCollectors.Select(async collector =>
         {
             try
             {
-                var isHealthy = await collector.ValidateAsync(cancellationToken);
-                return new { DataSource = collector.DataSource, IsHealthy = isHealthy };
+                return await collector.ValidateAsync(cancellationToken);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "检查 {DataSource} 健康状态失败", collector.DataSource);
-                return new { DataSource = collector.DataSource, IsHealthy = false };
+                _logger.LogError(ex, "检查数据源 {DataSource} 健康状态失败", collector.DataSource);
+                return false;
             }
         });
 
-        var results = await Task.WhenAll(tasks);
-        
-        foreach (var result in results)
-        {
-            healthStatus[result.DataSource] = result.IsHealthy;
-        }
+        var results = await Task.WhenAll(healthCheckTasks);
+        var healthyCount = results.Count(r => r);
+        var isHealthy = healthyCount > 0;
 
-        var healthyCount = healthStatus.Values.Count(v => v);
-        _logger.LogInformation("数据源健康检查完成，{HealthyCount}/{TotalCount} 个数据源可用", 
-            healthyCount, healthStatus.Count);
+        _logger.LogInformation("数据源健康检查完成，{HealthyCount}/{TotalCount} 个数据源正常", 
+            healthyCount, enabledCollectors.Count);
 
-        return healthStatus;
+        return isHealthy;
     }
+
 }

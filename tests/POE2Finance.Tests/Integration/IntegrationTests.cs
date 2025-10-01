@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Xunit;
 using FluentAssertions;
 using POE2Finance.Data.DbContexts;
 using POE2Finance.Core.Entities;

@@ -33,6 +33,28 @@ public interface IDataCollectionService
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>是否可用</returns>
     Task<bool> ValidateDataSourceAsync(DataSource dataSource, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 检查所有数据源的健康状态
+    /// </summary>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>健康状态</returns>
+    Task<bool> CheckAllDataSourcesHealthAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 从所有数据源采集数据
+    /// </summary>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>采集结果</returns>
+    Task<List<PriceDataDto>> CollectFromAllSourcesAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 带回退的价格采集
+    /// </summary>
+    /// <param name="currencyType">通货类型</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>价格数据</returns>
+    Task<PriceDataDto?> CollectPriceWithFallbackAsync(CurrencyType currencyType, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
@@ -125,6 +147,33 @@ public interface IChartGenerationService
     /// <param name="cancellationToken">取消令牌</param>
     /// <returns>生成的图片路径</returns>
     Task<string> GenerateHotItemsChartAsync(List<HotItemAnalysisDto> hotItems, string outputPath, CancellationToken cancellationToken = default);
+}
+
+/// <summary>
+/// 文本转语音服务接口
+/// </summary>
+public interface ITextToSpeechService
+{
+    /// <summary>
+    /// 生成语音音频
+    /// </summary>
+    /// <param name="text">文本内容</param>
+    /// <param name="outputPath">输出路径</param>
+    /// <param name="cancellationToken">取消令牌</param>
+    /// <returns>生成的音频文件路径</returns>
+    Task<string> GenerateAudioAsync(string text, string outputPath, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 检查TTS服务是否可用
+    /// </summary>
+    /// <returns>是否可用</returns>
+    Task<bool> IsAvailableAsync();
+
+    /// <summary>
+    /// 获取可用的语音列表
+    /// </summary>
+    /// <returns>语音列表</returns>
+    Task<List<string>> GetAvailableVoicesAsync();
 }
 
 /// <summary>

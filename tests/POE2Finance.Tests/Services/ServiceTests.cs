@@ -2,12 +2,15 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
+using Xunit;
+using FluentAssertions;
 using POE2Finance.Core.Enums;
 using POE2Finance.Core.Models;
 using POE2Finance.Services.Analysis;
 using POE2Finance.Services.Configuration;
 using POE2Finance.Data.Repositories;
 using POE2Finance.Core.Entities;
+using POE2Finance.Services.AI;
 
 namespace POE2Finance.Tests.Services;
 

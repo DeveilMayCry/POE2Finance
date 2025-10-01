@@ -50,7 +50,7 @@ public class DD373Collector : BaseDataCollector
         {
             var url = $"{_config.BaseUrl}{_config.Poe2Section}";
             var response = await _httpClient.GetStringWithRetryAsync(url, _config.Headers, cancellationToken);
-            return !string.IsNullOrEmpty(response) && response.Contains("POE2") || response.Contains("流放之路");
+            return !string.IsNullOrEmpty(response) && (response.Contains("POE2") || response.Contains("流放之路"));
         }
         catch (Exception ex)
         {
@@ -151,7 +151,7 @@ public class DD373Collector : BaseDataCollector
                 return null;
             }
 
-            var priceText = priceNode.InnerText?.Trim() ?? "";
+            var priceText = priceNode.InnerText?.Trim() ?? string.Empty;
             var price = ExtractPriceFromText(priceText);
             
             if (price == null)
@@ -170,7 +170,7 @@ public class DD373Collector : BaseDataCollector
             int? volume = null;
             if (volumeNode != null)
             {
-                var volumeText = volumeNode.InnerText?.Trim() ?? "";
+                var volumeText = volumeNode.InnerText?.Trim() ?? string.Empty;
                 var volumeMatch = _priceRegex.Match(volumeText);
                 if (volumeMatch.Success && int.TryParse(volumeMatch.Value, out var vol))
                 {

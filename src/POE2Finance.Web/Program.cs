@@ -59,15 +59,15 @@ builder.Services.AddScoped<IDataCollectionService, DataCollectionService>();
 builder.Services.AddScoped<IPriceAnalysisService, PriceAnalysisService>();
 builder.Services.AddScoped<IChartGenerationService, ChartGenerationService>();
 builder.Services.AddScoped<IContentGenerationService, ContentGenerationService>();
-builder.Services.AddScoped<EdgeTtsService>();
+builder.Services.AddScoped<ITextToSpeechService, EdgeTtsService>();
 builder.Services.AddScoped<IVideoCreationService, VideoCreationService>();
 builder.Services.AddScoped<IPublishingService, BilibiliPublishingService>();
 
 // 添加定时任务服务
 builder.Services.AddQuartz(q =>
 {
-    // 配置定时任务
-    q.UseMicrosoftDependencyInjection();
+    // 在新版本的Quartz中，DI集成已经默认启用，不再需要显式调用
+    // q.UseMicrosoftDependencyInjection(); // 这行在新版本中已经不需要了
     
     // 上午场任务 - 每天09:00
     var morningJobKey = new JobKey("MorningAnalysisJob");
@@ -144,3 +144,6 @@ finally
 {
     Log.CloseAndFlush();
 }
+
+// 使Program类对测试项目可见
+public partial class Program { }

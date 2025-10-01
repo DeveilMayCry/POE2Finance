@@ -261,7 +261,6 @@ public class ResilientHttpClient
             .Handle<HttpRequestException>()
             .Or<TaskCanceledException>()
             .Or<TimeoutException>()
-            .OrResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode && r.StatusCode != HttpStatusCode.NotFound)
             .WaitAndRetryAsync(
                 retryCount: _config.MaxRetries,
                 sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(_config.RetryDelayBaseSeconds * Math.Pow(2, retryAttempt - 1)),

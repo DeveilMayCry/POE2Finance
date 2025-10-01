@@ -10,7 +10,7 @@ namespace POE2Finance.Services.AI;
 /// <summary>
 /// Edge-TTS语音合成服务实现
 /// </summary>
-public class EdgeTtsService : IVideoCreationService
+public class EdgeTtsService : ITextToSpeechService
 {
     private readonly ILogger<EdgeTtsService> _logger;
     private readonly EdgeTtsConfiguration _config;
@@ -86,10 +86,9 @@ public class EdgeTtsService : IVideoCreationService
     }
 
     /// <inheritdoc/>
-    public async Task<string> CreateVideoAsync(VideoGenerationConfigDto config, MarketAnalysisResultDto analysisResult, List<string> chartPaths, CancellationToken cancellationToken = default)
+    public async Task<bool> IsAvailableAsync()
     {
-        // 这个方法在视频制作服务中实现，此处仅用于接口完整性
-        throw new NotImplementedException("视频创建功能在 VideoCreationService 中实现");
+        return await IsEdgeTtsAvailableAsync();
     }
 
     /// <summary>

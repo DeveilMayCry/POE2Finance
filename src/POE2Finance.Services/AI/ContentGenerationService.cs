@@ -30,7 +30,7 @@ public class ContentGenerationService : IContentGenerationService
     }
 
     /// <inheritdoc/>
-    public async Task<string> GenerateReportContentAsync(MarketAnalysisResultDto analysisResult, CancellationToken cancellationToken = default)
+    public Task<string> GenerateReportContentAsync(MarketAnalysisResultDto analysisResult, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("开始生成分析报告文本内容，时间段: {TimeSlot}", analysisResult.TimeSlot);
 
@@ -82,7 +82,7 @@ public class ContentGenerationService : IContentGenerationService
             var content = contentBuilder.ToString();
             _logger.LogInformation("报告内容生成完成，总长度: {Length} 字符", content.Length);
             
-            return content;
+            return Task.FromResult(content);
         }
         catch (Exception ex)
         {

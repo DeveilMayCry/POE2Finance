@@ -44,13 +44,11 @@ public class DataCollectionJob : IJob
         try
         {
             // 检查数据源健康状态
-            var healthStatus = await _dataCollectionService.CheckAllDataSourcesHealthAsync(context.CancellationToken);
-            var healthyCount = healthStatus.Values.Count(v => v);
+            var isHealthy = await _dataCollectionService.CheckAllDataSourcesHealthAsync(context.CancellationToken);
             
-            _logger.LogInformation("数据源健康检查完成，{HealthyCount}/{TotalCount} 个数据源可用", 
-                healthyCount, healthStatus.Count);
+            _logger.LogInformation("数据源健康检查完成，状态: {IsHealthy}", isHealthy);
 
-            if (healthyCount == 0)
+            if (!isHealthy)
             {
                 _logger.LogWarning("没有可用的数据源，跳过数据收集");
                 return;
@@ -209,7 +207,7 @@ public class CleanupJob : IJob
     /// <summary>
     /// 清理临时目录
     /// </summary>
-    private async Task CleanTempDirectoriesAsync()
+    private Task CleanTempDirectoriesAsync()
     {
         try
         {
@@ -240,12 +238,14 @@ public class CleanupJob : IJob
         {
             _logger.LogError(ex, "清理临时目录失败");
         }
+        
+        return Task.CompletedTask;
     }
 
     /// <summary>
     /// 清理系统临时文件
     /// </summary>
-    private async Task CleanSystemTempFilesAsync()
+    private Task CleanSystemTempFilesAsync()
     {
         try
         {
@@ -277,6 +277,8 @@ public class CleanupJob : IJob
         {
             _logger.LogWarning(ex, "清理系统临时文件失败");
         }
+        
+        return Task.CompletedTask;
     }
 }
 
@@ -311,17 +313,14 @@ public class HealthCheckJob : IJob
         try
         {
             // 检查数据源健康状态
-            var healthStatus = await _dataCollectionService.CheckAllDataSourcesHealthAsync(context.CancellationToken);
-            var healthyCount = healthStatus.Values.Count(v => v);
-            var totalCount = healthStatus.Count;
+            var isHealthy = await _dataCollectionService.CheckAllDataSourcesHealthAsync(context.CancellationToken);
 
-            _logger.LogInformation("数据源健康状态: {HealthyCount}/{TotalCount}", healthyCount, totalCount);
+            _logger.LogInformation("数据源健康状态: {IsHealthy}", isHealthy);
 
-            // 如果健康的数据源少于一半，记录警告
-            if (healthyCount < totalCount / 2)
+            // 如果数据源不健康，记录警告
+            if (!isHealthy)
             {
-                _logger.LogWarning("数据源健康状态异常，仅有 {HealthyCount}/{TotalCount} 个数据源可用", 
-                    healthyCount, totalCount);
+                _logger.LogWarning("数据源健康状态异常，没有可用的数据源");
             }
 
             // 检查磁盘空间

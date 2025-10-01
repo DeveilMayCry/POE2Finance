@@ -111,15 +111,17 @@ public class PriceAnalysisService : IPriceAnalysisService
             else if (change < 0) downCount++;
         }
 
-        // 根据总体变化和趋势一致性确定趋势类型
-        return changePercent switch
-        {
-            > _config.StrongTrendThreshold when upCount > downCount * 2 => TrendType.StrongUptrend,
-            > _config.ModerateTrendThreshold when upCount > downCount => TrendType.ModerateUptrend,
-            < -_config.StrongTrendThreshold when downCount > upCount * 2 => TrendType.StrongDowntrend,
-            < -_config.ModerateTrendThreshold when downCount > upCount => TrendType.ModerateDowntrend,
-            _ => TrendType.Sideways
-        };
+        // 使用if-else结构替代switch表达式，因为配置值不能用作常量
+        if (changePercent > _config.StrongTrendThreshold && upCount > downCount * 2)
+            return TrendType.StrongUptrend;
+        else if (changePercent > _config.ModerateTrendThreshold && upCount > downCount)
+            return TrendType.ModerateUptrend;
+        else if (changePercent < -_config.StrongTrendThreshold && downCount > upCount * 2)
+            return TrendType.StrongDowntrend;
+        else if (changePercent < -_config.ModerateTrendThreshold && downCount > upCount)
+            return TrendType.ModerateDowntrend;
+        else
+            return TrendType.Sideways;
     }
 
     /// <summary>
@@ -229,7 +231,7 @@ public class PriceAnalysisService : IPriceAnalysisService
 
         if (avgFirst == 0) return null;
 
-        return (avgSecond - avgFirst) / avgFirst * 100;
+        return (decimal)(avgSecond - avgFirst) / (decimal)avgFirst * 100;
     }
 
     /// <summary>
