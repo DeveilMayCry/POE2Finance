@@ -136,11 +136,11 @@ cp /data/poe2finance.db $BACKUP_DIR/poe2finance_$DATE.db
 # 备份日志（最近7天）
 tar -czf $BACKUP_DIR/logs_$DATE.tar.gz /logs
 
-# 清理7天前的备份
-find $BACKUP_DIR -name "*.db" -mtime +7 -delete
-find $BACKUP_DIR -name "*.tar.gz" -mtime +7 -delete
+   # 清理7天前的备份
+   find $BACKUP_DIR -name "*.db" -mtime +7 -delete
+   find $BACKUP_DIR -name "*.tar.gz" -mtime +7 -delete
 
-echo "备份完成: $DATE"
+   echo "备份完成: $DATE"
 ```
 
 添加到定时任务:
@@ -315,11 +315,11 @@ docker-compose logs -f poe2finance
    - 压缩备份文件
    - 使用轻量级基础镜像
 
-## 支持和维护
+支持和维护
 
 如有问题，请检查：
 1. 应用日志: `/logs/poe2finance-*.log`
 2. Docker日志: `docker-compose logs`
 3. 系统日志: `/var/log/syslog`
 
-联系方式：[your-contact-info]
+联系方式：[待补充]
